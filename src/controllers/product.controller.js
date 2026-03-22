@@ -15,7 +15,7 @@ const getProductById = catchAsync(async (req, res, next) => {
   const product = await productService.getProductById(id);
   sendResponse(res, 200, product, 'Product details loaded.');
 });
-//dsadas
+
 const createProduct = catchAsync(async (req, res) => {
   const product = await productService.createProduct(req.body);
   sendResponse(res, 201, product, 'Product has been successfully published.');

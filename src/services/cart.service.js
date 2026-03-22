@@ -36,7 +36,9 @@ const addToCart = async (userId, productId, quantity = 1) => {
   }
 
   await user.save();
-  return await getCart(userId);
+  
+  // Return a lightweight response (just the total unique items in cart)
+  return { cartItemCount: user.cart.length };
 };
 
 const removeFromCart = async (userId, productId) => {

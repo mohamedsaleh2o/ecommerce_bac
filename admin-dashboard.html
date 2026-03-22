@@ -108,6 +108,17 @@
 
         .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; }
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        
+        /* Flows Section */
+        .flow-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .flow-card h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .flow-step { display: flex; margin-bottom: 1rem; position: relative; }
+        .flow-step::before { content: ''; position: absolute; left: 11px; top: 24px; bottom: -16px; width: 2px; background: var(--border); }
+        .flow-step:last-child::before { display: none; }
+        .step-number { width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; margin-right: 1rem; flex-shrink: 0; z-index: 1; }
+        .step-content h4 { font-size: 0.9rem; margin-bottom: 0.25rem; color: var(--text-main); margin-top: 0; }
+        .step-content p { font-size: 0.85rem; color: var(--text-muted); }
+        .code-tag { background: #F1F5F9; padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; color: #0F172A; }
     </style>
 </head>
 <body>
@@ -118,24 +129,27 @@
             <span>Admin</span>Panel
         </div>
         <div class="nav-menu">
-            <div class="nav-item active">
+            <div class="nav-item active" onclick="switchTab('products')" id="nav-products">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
                 Products
             </div>
-            <!-- More nav items could be added here -->
+            <div class="nav-item" onclick="switchTab('flows')" id="nav-flows">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                API Flows
+            </div>
         </div>
     </aside>
 
     <main>
         <header>
-            <div class="header-title">Product Management</div>
+            <div class="header-title" id="pageTitle">Product Management</div>
             <div class="api-config">
                 <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">API Base URL:</span>
                 <input type="text" id="apiBaseUrl" value="https://saleh-ecommerce.up.railway.app/api" placeholder="http://localhost:5000/api">
             </div>
         </header>
 
-        <div class="content">
+        <div class="content" id="tab-products">
             <div class="toolbar">
                 <div>
                     <input type="text" id="searchInput" placeholder="Search products..." style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; width: 250px;">
@@ -162,6 +176,92 @@
                         <tr><td colspan="6" class="loading">Loading products...</td></tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <div class="content" id="tab-flows" style="display: none;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Understanding the backend architectural dependency chains and data flows for client interactions.</p>
+                
+                <div class="flow-card">
+                    <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Cart Addition Flow</h3>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Client Request</h4>
+                            <p>App sends <span class="code-tag">POST /api/cart/add</span> containing <span class="code-tag">productId</span>, <span class="code-tag">quantity</span>, and Bearer token.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Auth & Validation Middleware</h4>
+                            <p>Verifies JWT token integrity, extracts User ID, and validates payload schema using Joi to prevent bad DB queries.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Product Verification</h4>
+                            <p>Queries <span class="code-tag">Product.findOne()</span> to ensure the item actually exists before allowing it to be queued for purchase.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Duplicate Resolution</h4>
+                            <p>Checks user's existing cart array. If product exists, performs <span class="code-tag">quantity += incomingQuantity</span>. Otherwise, pushes new item.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>Dynamic Population & Response</h4>
+                            <p>Fetches live prices for all items in the newly updated cart, calculates <span class="code-tag">totalAmount</span>, and returns the populated payload to the client.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-card">
+                    <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Order Checkout Flow</h3>
+                    
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Client Checkout Initiation</h4>
+                            <p>App sends <span class="code-tag">POST /api/orders</span> with <span class="code-tag">shippingAddress</span>.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Cart Integrity Check</h4>
+                            <p>Backend fetches user. If <span class="code-tag">user.cart.length === 0</span>, throws a 400 Error to prevent empty "ghost" orders.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Price Snapshotting (Crucial)</h4>
+                            <p>Loops through user's cart and fetches the <i>current live price</i> from the Product table. Saves this exact number into the order items array. This permanently protects the user's receipt even if admin changes prices later.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Order Persistence</h4>
+                            <p>Creates new document in <span class="code-tag">Order</span> collection with status set to "pending" and calculated <span class="code-tag">totalAmount</span>.</p>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>Cart Purge</h4>
+                            <p>Executes <span class="code-tag">user.cart = []</span> and saves to MongoDB. The client's cart is now officially emptied and the cycle is complete.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -232,6 +332,19 @@
         const modal = document.getElementById('productModal');
         const toastEl = document.getElementById('toast');
         const form = document.getElementById('productForm');
+
+        function switchTab(tabId) {
+            document.getElementById('nav-products').classList.remove('active');
+            document.getElementById('nav-flows').classList.remove('active');
+            
+            document.getElementById('tab-products').style.display = 'none';
+            document.getElementById('tab-flows').style.display = 'none';
+            
+            document.getElementById('nav-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            
+            document.getElementById('pageTitle').innerText = tabId === 'products' ? 'Product Management' : 'API Workflows';
+        }
 
         // Initial Load
         document.addEventListener('DOMContentLoaded', fetchProducts);
