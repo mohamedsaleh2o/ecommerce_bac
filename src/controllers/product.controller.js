@@ -28,6 +28,7 @@ const updateProduct = catchAsync(async (req, res, next) => {
   const product = await productService.updateProduct(id, req.body);
   sendResponse(res, 200, product, 'Product changes saved successfully.');
 });
+//sdada
 
 const deleteProduct = catchAsync(async (req, res, next) => {
   const id = Number(req.params.id);
