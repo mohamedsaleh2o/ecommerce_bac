@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-body: #F8FAFC;
+            --bg-surface: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --success: #10B981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 260px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .logo { padding: 1.5rem; font-size: 1.25rem; font-weight: 700; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { color: var(--primary); }
+        .nav-menu { padding: 1rem; flex: 1; }
+        .nav-item { padding: 0.75rem 1rem; border-radius: 6px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: 0.2s; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
+        .nav-item:hover, .nav-item.active { background-color: #EEF2FF; color: var(--primary); }
+        
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        header {
+            background-color: var(--bg-surface);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-title { font-size: 1.25rem; font-weight: 600; }
+        .api-config { display: flex; align-items: center; gap: 0.5rem; }
+        .api-config input { padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; width: 300px; }
+
+        .content { padding: 2rem; flex: 1; overflow-y: auto; }
+        
+        /* Actions */
+        .toolbar { display: flex; justify-content: space-between; margin-bottom: 1.5rem; align-items: center; }
+        .btn { padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; font-size: 0.875rem; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-danger { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+        .btn-danger:hover { background-color: var(--danger); color: white; }
+        
+        /* Table */
+        .table-container { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        th { background-color: #F8FAFC; font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { font-size: 0.875rem; vertical-align: middle; }
+        .product-img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); display: none; justify-content: center; align-items: center; z-index: 50; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-surface); width: 100%; max-width: 500px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height: 90vh; }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 1.25rem; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .modal-body { padding: 1.5rem; overflow-y: auto; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-main); }
+        .form-group input, .form-group textarea { width: 100%; padding: 0.625rem; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .modal-footer { padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #F1F5F9; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--text-main); color: white; padding: 1rem 1.5rem; border-radius: 6px; font-size: 0.875rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transform: translateY(100px); opacity: 0; transition: 0.3s; z-index: 100; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: var(--danger); }
+        .toast.success { background: var(--success); }
+
+        .loading { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; }
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>Admin</span>Panel
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                Products
+            </div>
+            <!-- More nav items could be added here -->
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div class="header-title">Product Management</div>
+            <div class="api-config">
+                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">API Base URL:</span>
+                <input type="text" id="apiBaseUrl" value="https://saleh-ecommerce.up.railway.app/api" placeholder="http://localhost:5000/api">
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="toolbar">
+                <div>
+                    <input type="text" id="searchInput" placeholder="Search products..." style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; width: 250px;">
+                </div>
+                <button class="btn btn-primary" onclick="openModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Add Product
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="80">Image</th>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="6" class="loading">Loading products...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Product Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add New Product</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="p_id">Product ID (Integer)</label>
+                        <input type="number" id="p_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p_title">Title</label>
+                        <input type="text" id="p_title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p_price">Price</label>
+                        <input type="number" step="0.01" id="p_price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p_category">Category</label>
+                        <input type="text" id="p_category" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p_image">Image URL</label>
+                        <input type="url" id="p_image" placeholder="https://..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p_desc">Description</label>
+                        <textarea id="p_desc" required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="p_rate">Rating (0-5)</label>
+                            <input type="number" step="0.1" max="5" id="p_rate" value="0" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="p_count">Review Count</label>
+                            <input type="number" id="p_count" value="0" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitProduct()">Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Action successful!</div>
+
+    <script>
+        let products = [];
+        let searchTimeout = null;
+
+        // Elements
+        const baseUrlInput = document.getElementById('apiBaseUrl');
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('tableBody');
+        const modal = document.getElementById('productModal');
+        const toastEl = document.getElementById('toast');
+        const form = document.getElementById('productForm');
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', fetchProducts);
+        
+        // Listen to API URL Changes
+        baseUrlInput.addEventListener('change', fetchProducts);
+
+        // Listen to Search
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchProducts(e.target.value);
+            }, 500);
+        });
+
+        // Helpers
+        function getBaseUrl() {
+            return baseUrlInput.value.replace(/\/$/, ''); // Remove trailing slash
+        }
+
+        function showToast(message, type = 'success') {
+            toastEl.textContent = message;
+            toastEl.className = `toast show ${type}`;
+            setTimeout(() => { toastEl.className = 'toast'; }, 3000);
+        }
+
+        function openModal() {
+            form.reset();
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // API Calls
+        async function fetchProducts(searchQuery = '') {
+            tableBody.innerHTML = '<tr><td colspan="6" class="loading">Loading products...</td></tr>';
+            try {
+                let url = `${getBaseUrl()}/products?limit=100`;
+                if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+
+                const res = await fetch(url);
+                const json = await res.json();
+                
+                if (json.success) {
+                    products = json.data;
+                    renderTable();
+                } else {
+                    throw new Error(json.message);
+                }
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="empty-state">Failed to load products. Check API URL.</td></tr>`;
+                showToast(err.message || 'Failed to fetch', 'error');
+            }
+        }
+
+        async function submitProduct() {
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const newProduct = {
+                id: parseInt(document.getElementById('p_id').value),
+                title: document.getElementById('p_title').value,
+                price: parseFloat(document.getElementById('p_price').value),
+                category: document.getElementById('p_category').value,
+                image: document.getElementById('p_image').value,
+                description: document.getElementById('p_desc').value,
+                rating: {
+                    rate: parseFloat(document.getElementById('p_rate').value),
+                    count: parseInt(document.getElementById('p_count').value)
+                }
+            };
+
+            try {
+                const res = await fetch(`${getBaseUrl()}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newProduct)
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    showToast('Product created successfully!');
+                    closeModal();
+                    fetchProducts(); // Refresh list
+                } else {
+                    throw new Error(json.message || 'Validation Failed');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm(`Are you sure you want to delete product ID ${id}?`)) return;
+
+            try {
+                const res = await fetch(`${getBaseUrl()}/products/${id}`, {
+                    method: 'DELETE'
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    showToast('Product deleted successfully!');
+                    fetchProducts(); // Refresh list
+                } else {
+                    throw new Error(json.message);
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // Render UI
+        function renderTable() {
+            if (products.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="empty-state">No products found.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = products.map(p => `
+                <tr>
+                    <td><img src="${p.image}" alt="${p.title}" class="product-img" onerror="this.src='https://via.placeholder.com/40'"></td>
+                    <td style="font-family: monospace; color: var(--text-muted);">${p.id}</td>
+                    <td style="font-weight: 500; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.title}</td>
+                    <td><span style="background: #EEF2FF; color: var(--primary); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">${p.category}</span></td>
+                    <td style="font-weight: 600;">$${p.price.toFixed(2)}</td>
+                    <td style="text-align: right;">
+                        <button class="btn btn-danger" onclick="deleteProduct(${p.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

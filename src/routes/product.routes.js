@@ -18,6 +18,11 @@ const productSchema = Joi.object({
   }).required()
 });
 
+router.get('/search/:query', (req, res, next) => {
+  req.query.search = req.params.query;
+  productController.getProducts(req, res, next);
+});
+
 router.route('/')
   .get(productController.getProducts)
   .post(validate(productSchema), productController.createProduct);

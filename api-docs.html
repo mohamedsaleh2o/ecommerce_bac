@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saleh E-Commerce API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --bg-dark: #1E1E2E;
+      --bg-code: #181825;
+      --text-main: #334155;
+      --text-light: #64748B;
+      --border: #E2E8F0;
+      
+      --get-bg: #E0F2FE;
+      --get-text: #0284C7;
+      --post-bg: #DCFCE7;
+      --post-text: #059669;
+      --put-bg: #FEF9C3;
+      --put-text: #D97706;
+      --delete-bg: #FEE2E2;
+      --delete-text: #DC2626;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      line-height: 1.6;
+      display: flex;
+    }
+
+    /* Sidebar Navigation */
+    nav {
+      width: 280px;
+      height: 100vh;
+      position: fixed;
+      background: #FAFAFA;
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      overflow-y: auto;
+    }
+    nav h1 { font-size: 1.25rem; margin-bottom: 2rem; color: #0F172A; }
+    nav ul { list-style: none; }
+    nav li { margin-bottom: 0.5rem; }
+    nav a { text-decoration: none; color: var(--text-light); font-weight: 500; display: block; padding: 0.5rem; border-radius: 6px; transition: 0.2s; }
+    nav a:hover { background: #F1F5F9; color: var(--primary); }
+    nav .group { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8; font-weight: 700; }
+
+    /* Main Content */
+    main {
+      margin-left: 280px;
+      flex: 1;
+      padding: 4rem;
+      max-width: 1200px;
+    }
+    
+    header { border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 3rem; }
+    header h1 { font-size: 2.5rem; color: #0F172A; margin-bottom: 0.5rem; }
+    header p { color: var(--text-light); font-size: 1.1rem; }
+    
+    .base-url-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: #334155;
+    }
+
+    section { margin-bottom: 5rem; padding-top: 2rem; border-top: 1px dashed var(--border); }
+    section h2 { font-size: 1.75rem; color: #0F172A; margin-bottom: 1rem; }
+    
+    .endpoint { margin-bottom: 3rem; }
+    .endpoint-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .endpoint-header h3 { font-size: 1.25rem; font-weight: 600; }
+    
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .badge.GET { background: var(--get-bg); color: var(--get-text); }
+    .badge.POST { background: var(--post-bg); color: var(--post-text); }
+    .badge.PUT { background: var(--put-bg); color: var(--put-text); }
+    .badge.DELETE { background: var(--delete-bg); color: var(--delete-text); }
+
+    .path { font-family: 'Fira Code', monospace; color: #475569; font-weight: 500; font-size: 0.95rem; }
+
+    p.desc { margin-bottom: 1.5rem; color: var(--text-light); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    
+    h4 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin-bottom: 0.75rem; margin-top: 1.5rem; }
+    
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: #64748B; font-weight: 600; }
+    td code { background: #F1F5F9; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'Fira Code', monospace; color: #0F172A; font-size: 0.8rem; }
+    .required { color: #DC2626; font-size: 0.8rem; font-weight: 600; margin-left: 0.5rem; }
+
+    /* Code Blocks */
+    .code-block {
+      background: var(--bg-dark);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    .code-header {
+      background: var(--bg-code);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    pre {
+      padding: 1.5rem;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #E2E8F0;
+      line-height: 1.5;
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      color: #94A3B8;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+    .copy-btn:hover { color: #F8FAFC; }
+
+    /* String styling for JSON */
+    .str { color: #A7F3D0; }
+    .num { color: #FDE047; }
+    .bool { color: #FCA5A5; }
+    .key { color: #93C5FD; }
+
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h1>E-Commerce API</h1>
+    <ul>
+      <li><div class="group">Authentication</div></li>
+      <li><a href="#auth-register">Register</a></li>
+      <li><a href="#auth-login">Login</a></li>
+      
+      <li><div class="group">Products</div></li>
+      <li><a href="#products-list">List Products</a></li>
+      <li><a href="#products-get">Get Product</a></li>
+      <li><a href="#products-create">Create Product</a></li>
+      <li><a href="#products-update">Update Product</a></li>
+      <li><a href="#products-delete">Delete Product</a></li>
+      
+      <li><div class="group">Categories</div></li>
+      <li><a href="#categories-list">List Categories</a></li>
+      <li><a href="#categories-products">Products by Category</a></li>
+      
+      <li><div class="group">Cart</div></li>
+      <li><a href="#cart-get">Get Cart</a></li>
+      <li><a href="#cart-add">Add to Cart</a></li>
+      <li><a href="#cart-update">Update Quantity</a></li>
+      <li><a href="#cart-remove">Remove from Cart</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <header>
+      <h1>API Reference</h1>
+      <p>Complete documentation for the E-Commerce mobile application backend.</p>
+      <div class="base-url-card">
+        <strong>Base URL:</strong> https://saleh-ecommerce.up.railway.app
+      </div>
+    </header>
+
+    <!-- AUTHENTICATION -->
+    <section id="authentication">
+      <h2>Authentication</h2>
+      <p class="desc">Manage user registration and access tokens. Pass the returned JWT token as a Bearer token in the `Authorization` header for protected routes.</p>
+
+      <div class="endpoint" id="auth-register">
+        <div class="endpoint-header">
+          <span class="badge POST">POST</span>
+          <span class="path">/api/auth/register</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Registers a new user and returns a JWT token. Automatically initializes an empty cart for the user.</p>
+            <h4>Request Body</h4>
+            <table>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>name</code> <span class="required">*</span></td><td>string</td><td>Full name of the user</td></tr>
+              <tr><td><code>email</code> <span class="required">*</span></td><td>string</td><td>Valid email address</td></tr>
+              <tr><td><code>password</code> <span class="required">*</span></td><td>string</td><td>Min 6 characters</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X POST https://saleh-ecommerce.up.railway.app/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Saleh Admin",
+    "email": "saleh@example.com",
+    "password": "password123"
+  }'</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span>201 Created Response</span></div>
+              <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"user"</span>: { <span class="key">"name"</span>: <span class="str">"Saleh Admin"</span>, <span class="key">"email"</span>: <span class="str">"saleh@example.com"</span>, <span class="key">"id"</span>: <span class="str">"60d5ecb..."</span> },
+    <span class="key">"token"</span>: <span class="str">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>
+  },
+  <span class="key">"message"</span>: <span class="str">"User registered successfully"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint" id="auth-login">
+        <div class="endpoint-header">
+          <span class="badge POST">POST</span>
+          <span class="path">/api/auth/login</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Authenticates an existing user and returns a JWT token.</p>
+            <h4>Request Body</h4>
+            <table>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>email</code> <span class="required">*</span></td><td>string</td><td>Registered email</td></tr>
+              <tr><td><code>password</code> <span class="required">*</span></td><td>string</td><td>User's password</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X POST https://saleh-ecommerce.up.railway.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "saleh@example.com",
+    "password": "password123"
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products">
+      <h2>Products</h2>
+      <p class="desc">The exact schema matches the `ProductResponseModel` used in the Flutter application.</p>
+
+      <div class="endpoint" id="products-list">
+        <div class="endpoint-header">
+          <span class="badge GET">GET</span>
+          <span class="path">/api/products</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Retrieve a paginated list of all products.</p>
+            <h4>Query Parameters</h4>
+            <table>
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>page</code></td><td>integer</td><td>Default: 1</td></tr>
+              <tr><td><code>limit</code></td><td>integer</td><td>Default: 20</td></tr>
+              <tr><td><code>category</code></td><td>string</td><td>Filter by exact category name</td></tr>
+              <tr><td><code>search</code></td><td>string</td><td>Fuzzy search on product title</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X GET "https://saleh-ecommerce.up.railway.app/api/products?page=1&limit=10"</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span>200 OK Response</span></div>
+              <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="num">1</span>,
+      <span class="key">"title"</span>: <span class="str">"Fjallraven Backpack"</span>,
+      <span class="key">"price"</span>: <span class="num">109.95</span>,
+      <span class="key">"description"</span>: <span class="str">"Your perfect pack..."</span>,
+      <span class="key">"category"</span>: <span class="str">"men's clothing"</span>,
+      <span class="key">"image"</span>: <span class="str">"https://..."</span>,
+      <span class="key">"rating"</span>: { <span class="key">"rate"</span>: <span class="num">3.9</span>, <span class="key">"count"</span>: <span class="num">120</span> }
+    }
+  ],
+  <span class="key">"message"</span>: <span class="str">"Products fetched successfully"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint" id="products-create">
+        <div class="endpoint-header">
+          <span class="badge POST">POST</span>
+          <span class="path">/api/products</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Create a new product.</p>
+            <h4>Request Body</h4>
+            <table>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>id</code> <span class="required">*</span></td><td>int</td><td>Unique integer ID</td></tr>
+              <tr><td><code>title</code> <span class="required">*</span></td><td>string</td><td>Product name</td></tr>
+              <tr><td><code>price</code> <span class="required">*</span></td><td>float</td><td>Item price</td></tr>
+              <tr><td><code>description</code> <span class="required">*</span></td><td>string</td><td>Item description</td></tr>
+              <tr><td><code>category</code> <span class="required">*</span></td><td>string</td><td>Category name</td></tr>
+              <tr><td><code>image</code> <span class="required">*</span></td><td>string</td><td>Valid Image URL</td></tr>
+              <tr><td><code>rating.rate</code> <span class="required">*</span></td><td>float</td><td>Review score</td></tr>
+              <tr><td><code>rating.count</code> <span class="required">*</span></td><td>int</td><td>Total reviews</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X POST https://saleh-ecommerce.up.railway.app/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1,
+    "title": "New Jacket",
+    "price": 55.99,
+    "description": "Warm winter jacket.",
+    "category": "men\'s clothing",
+    "image": "https://example.com/img.png",
+    "rating": { "rate": 4.5, "count": 10 }
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section id="categories">
+      <h2>Categories</h2>
+      
+      <div class="endpoint" id="categories-list">
+        <div class="endpoint-header">
+          <span class="badge GET">GET</span>
+          <span class="path">/api/categories</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Get a distinct list of all category strings extracted from the current products.</p>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X GET https://saleh-ecommerce.up.railway.app/api/categories</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span>200 OK Response</span></div>
+              <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: [
+    <span class="str">"electronics"</span>,
+    <span class="str">"jewelery"</span>,
+    <span class="str">"men's clothing"</span>,
+    <span class="str">"women's clothing"</span>
+  ],
+  <span class="key">"message"</span>: <span class="str">"Categories fetched successfully"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CART -->
+    <section id="cart">
+      <h2>Cart</h2>
+      <p class="desc">All Cart endpoints require the <code>Authorization: Bearer &lt;token&gt;</code> header.</p>
+
+      <div class="endpoint" id="cart-get">
+        <div class="endpoint-header">
+          <span class="badge GET">GET</span>
+          <span class="path">/api/cart</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Retrieve the currently authenticated user's cart, populated with product details and totals.</p>
+            <h4>Headers</h4>
+            <table>
+              <tr><th>Header</th><th>Value</th></tr>
+              <tr><td><code>Authorization</code> <span class="required">*</span></td><td>Bearer {token}</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X GET https://saleh-ecommerce.up.railway.app/api/cart \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-header"><span>200 OK Response</span></div>
+              <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"items"</span>: [
+      {
+        <span class="key">"product"</span>: { <span class="key">"id"</span>: <span class="num">1</span>, <span class="key">"title"</span>: <span class="str">"Jacket"</span>, <span class="key">"price"</span>: <span class="num">55.99</span>, ... },
+        <span class="key">"quantity"</span>: <span class="num">2</span>,
+        <span class="key">"subtotal"</span>: <span class="num">111.98</span>
+      }
+    ],
+    <span class="key">"total"</span>: <span class="num">111.98</span>
+  },
+  <span class="key">"message"</span>: <span class="str">"Cart fetched successfully"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint" id="cart-add">
+        <div class="endpoint-header">
+          <span class="badge POST">POST</span>
+          <span class="path">/api/cart/add</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Add a product to the user's cart. If the product already exists, the quantity will be increased.</p>
+            <h4>Request Body</h4>
+            <table>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>productId</code> <span class="required">*</span></td><td>int</td><td>The integer ID of the product</td></tr>
+              <tr><td><code>quantity</code></td><td>int</td><td>Amount to add (Default: 1)</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X POST https://saleh-ecommerce.up.railway.app/api/cart/add \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": 1,
+    "quantity": 1
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
