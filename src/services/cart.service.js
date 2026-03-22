@@ -37,15 +37,21 @@ const addToCart = async (userId, productId, quantity = 1) => {
 
   await user.save();
   
-  // Return a lightweight response (just the total unique items in cart)
-  return { cartItemCount: user.cart.length };
+  // Return a lightweight response (both unique items count and total quantity)
+  return { 
+    cartItemCount: user.cart.length,
+    itemCount: user.cart.reduce((sum, item) => sum + item.quantity, 0)
+  };
 };
 
 const removeFromCart = async (userId, productId) => {
   const user = await User.findById(userId);
   user.cart = user.cart.filter(item => item.productId !== productId);
   await user.save();
-  return await getCart(userId);
+  return { 
+    cartItemCount: user.cart.length,
+    itemCount: user.cart.reduce((sum, item) => sum + item.quantity, 0)
+  };
 };
 
 const updateQuantity = async (userId, productId, quantity) => {
@@ -59,7 +65,10 @@ const updateQuantity = async (userId, productId, quantity) => {
       user.cart[cartItemIndex].quantity = quantity;
     }
     await user.save();
-    return await getCart(userId);
+    return { 
+      cartItemCount: user.cart.length,
+      itemCount: user.cart.reduce((sum, item) => sum + item.quantity, 0)
+    };
   } else {
     throw new AppError('Product not in cart', 404);
   }
