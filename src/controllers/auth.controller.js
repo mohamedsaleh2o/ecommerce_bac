@@ -4,13 +4,13 @@ const sendResponse = require('../utils/response');
 
 const register = catchAsync(async (req, res) => {
   const { user, token } = await authService.register(req.body);
-  sendResponse(res, 201, { user, token }, 'User registered successfully');
+  sendResponse(res, 201, { user, token }, `Welcome, ${user.name}! Your account has been created.`);
 });
 
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const { user, token } = await authService.login(email, password);
-  sendResponse(res, 200, { user, token }, 'Login successful');
+  sendResponse(res, 200, { user, token }, `Welcome back, ${user.name}!`);
 });
 
 module.exports = { register, login };

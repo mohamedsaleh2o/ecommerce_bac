@@ -166,6 +166,7 @@
       <li><div class="group">Products</div></li>
       <li><a href="#products-list">List Products</a></li>
       <li><a href="#products-get">Get Product</a></li>
+      <li><a href="#products-search">Search Products</a></li>
       <li><a href="#products-create">Create Product</a></li>
       <li><a href="#products-update">Update Product</a></li>
       <li><a href="#products-delete">Delete Product</a></li>
@@ -173,6 +174,10 @@
       <li><div class="group">Categories</div></li>
       <li><a href="#categories-list">List Categories</a></li>
       <li><a href="#categories-products">Products by Category</a></li>
+
+      <li><div class="group">Orders</div></li>
+      <li><a href="#orders-create">Checkout (Create)</a></li>
+      <li><a href="#orders-history">Order History</a></li>
       
       <li><div class="group">Cart</div></li>
       <li><a href="#cart-get">Get Cart</a></li>
@@ -317,6 +322,24 @@
         </div>
       </div>
 
+      <div class="endpoint" id="products-search">
+        <div class="endpoint-header">
+          <span class="badge GET">GET</span>
+          <span class="path">/api/products/search/:query</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Search for products by matching the title. Case-insensitive fuzzy search.</p>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X GET "https://saleh-ecommerce.up.railway.app/api/products/search/iphone"</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="endpoint" id="products-create">
         <div class="endpoint-header">
           <span class="badge POST">POST</span>
@@ -376,18 +399,78 @@
               <div class="code-header"><span>cURL Request</span></div>
               <pre>curl -X GET https://saleh-ecommerce.up.railway.app/api/categories</pre>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="endpoint" id="categories-products">
+        <div class="endpoint-header">
+          <span class="badge GET">GET</span>
+          <span class="path">/api/categories/:categoryName</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Get all products belonging to a specific category.</p>
+          </div>
+          <div>
             <div class="code-block">
-              <div class="code-header"><span>200 OK Response</span></div>
-              <pre>{
-  <span class="key">"success"</span>: <span class="bool">true</span>,
-  <span class="key">"data"</span>: [
-    <span class="str">"electronics"</span>,
-    <span class="str">"jewelery"</span>,
-    <span class="str">"men's clothing"</span>,
-    <span class="str">"women's clothing"</span>
-  ],
-  <span class="key">"message"</span>: <span class="str">"Categories fetched successfully"</span>
-}</pre>
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X GET "https://saleh-ecommerce.up.railway.app/api/categories/smartphones"</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders">
+      <h2>Orders (Checkout)</h2>
+      <p class="desc">All Order endpoints require the <code>Authorization: Bearer &lt;token&gt;</code> header.</p>
+
+      <div class="endpoint" id="orders-create">
+        <div class="endpoint-header">
+          <span class="badge POST">POST</span>
+          <span class="path">/api/orders</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Checkout the user's cart. This creates a snapshot of the prices, generates an order, and automatically empties the user's cart.</p>
+            <h4>Request Body</h4>
+            <table>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>shippingAddress</code> <span class="required">*</span></td><td>string</td><td>Full delivery address</td></tr>
+              <tr><td><code>paymentMethod</code></td><td>string</td><td>Default: "Cash on Delivery"</td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X POST https://saleh-ecommerce.up.railway.app/api/orders \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "shippingAddress": "123 Flutter St, NY",
+    "paymentMethod": "Cash on Delivery"
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint" id="orders-history">
+        <div class="endpoint-header">
+          <span class="badge GET">GET</span>
+          <span class="path">/api/orders</span>
+        </div>
+        <div class="grid">
+          <div>
+            <p class="desc">Fetch the authenticated user's order history, sorted by newest first.</p>
+          </div>
+          <div>
+            <div class="code-block">
+              <div class="code-header"><span>cURL Request</span></div>
+              <pre>curl -X GET https://saleh-ecommerce.up.railway.app/api/orders \
+  -H "Authorization: Bearer YOUR_TOKEN"</pre>
             </div>
           </div>
         </div>

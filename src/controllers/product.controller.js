@@ -5,7 +5,7 @@ const { AppError } = require('../middlewares/error.middleware');
 
 const getProducts = catchAsync(async (req, res) => {
   const result = await productService.getProducts(req.query);
-  sendResponse(res, 200, result.products, 'Products fetched successfully');
+  sendResponse(res, 200, result.products, 'Products loaded.');
 });
 
 const getProductById = catchAsync(async (req, res, next) => {
@@ -13,12 +13,12 @@ const getProductById = catchAsync(async (req, res, next) => {
   if (isNaN(id)) return next(new AppError('Invalid product ID', 400));
   
   const product = await productService.getProductById(id);
-  sendResponse(res, 200, product, 'Product fetched successfully');
+  sendResponse(res, 200, product, 'Product details loaded.');
 });
 
 const createProduct = catchAsync(async (req, res) => {
   const product = await productService.createProduct(req.body);
-  sendResponse(res, 201, product, 'Product created successfully');
+  sendResponse(res, 201, product, 'Product has been successfully published.');
 });
 
 const updateProduct = catchAsync(async (req, res, next) => {
@@ -26,7 +26,7 @@ const updateProduct = catchAsync(async (req, res, next) => {
   if (isNaN(id)) return next(new AppError('Invalid product ID', 400));
 
   const product = await productService.updateProduct(id, req.body);
-  sendResponse(res, 200, product, 'Product updated successfully');
+  sendResponse(res, 200, product, 'Product changes saved successfully.');
 });
 
 const deleteProduct = catchAsync(async (req, res, next) => {
@@ -34,7 +34,7 @@ const deleteProduct = catchAsync(async (req, res, next) => {
   if (isNaN(id)) return next(new AppError('Invalid product ID', 400));
 
   await productService.deleteProduct(id);
-  sendResponse(res, 200, {}, 'Product deleted successfully');
+  sendResponse(res, 200, {}, 'Product has been removed from the catalog.');
 });
 
 module.exports = { getProducts, getProductById, createProduct, updateProduct, deleteProduct };

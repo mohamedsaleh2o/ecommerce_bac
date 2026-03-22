@@ -100,9 +100,7 @@
               "path": ["api", "products"],
               "query": [
                 { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "category", "value": "men's clothing", "disabled": true },
-                { "key": "search", "value": "backpack", "disabled": true }
+                { "key": "limit", "value": "20" }
               ]
             }
           }
@@ -116,6 +114,18 @@
               "raw": "{{baseUrl}}/api/products/1",
               "host": ["{{baseUrl}}"],
               "path": ["api", "products", "1"]
+            }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search/iphone",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "search", "iphone"]
             }
           }
         },
@@ -190,9 +200,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/categories/men's clothing",
+              "raw": "{{baseUrl}}/api/categories/smartphones",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "categories", "men's clothing"]
+              "path": ["api", "categories", "smartphones"]
             }
           }
         }
@@ -269,6 +279,44 @@
               "raw": "{{baseUrl}}/api/cart/remove",
               "host": ["{{baseUrl}}"],
               "path": ["api", "cart", "remove"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Orders",
+      "item": [
+        {
+          "name": "Checkout (Create Order)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"123 Flutter Street, NY\",\n  \"paymentMethod\": \"Cash on Delivery\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Order History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
             }
           }
         }
