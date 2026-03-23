@@ -2,10 +2,8 @@ const User = require('../models/User.model');
 const Product = require('../models/Product.model');
 const { AppError } = require('../middlewares/error.middleware');
 
-const getCart = async (userId) => {
-  const user = await User.findById(userId);
+const getCartDetails = async (user) => {
   let total = 0;
-  
   const cartItems = [];
   for (const item of user.cart) {
     const product = await Product.findOne({ id: item.productId });
@@ -18,8 +16,12 @@ const getCart = async (userId) => {
       total += product.price * item.quantity;
     }
   }
-
   return { items: cartItems, total };
+};
+
+const getCart = async (userId) => {
+  const user = await User.findById(userId);
+  return await getCartDetails(user);
 };
 
 const addToCart = async (userId, productId, quantity = 1) => {
@@ -36,22 +38,14 @@ const addToCart = async (userId, productId, quantity = 1) => {
   }
 
   await user.save();
-  
-  // Return a lightweight response (both unique items count and total quantity)
-  return { 
-    cartItemCount: user.cart.length,
-    itemCount: user.cart.reduce((sum, item) => sum + item.quantity, 0)
-  };
+  return await getCartDetails(user);
 };
 
 const removeFromCart = async (userId, productId) => {
   const user = await User.findById(userId);
   user.cart = user.cart.filter(item => item.productId !== productId);
   await user.save();
-  return { 
-    cartItemCount: user.cart.length,
-    itemCount: user.cart.reduce((sum, item) => sum + item.quantity, 0)
-  };
+  return await getCartDetails(user);
 };
 
 const updateQuantity = async (userId, productId, quantity) => {
@@ -65,10 +59,7 @@ const updateQuantity = async (userId, productId, quantity) => {
       user.cart[cartItemIndex].quantity = quantity;
     }
     await user.save();
-    return { 
-      cartItemCount: user.cart.length,
-      itemCount: user.cart.reduce((sum, item) => sum + item.quantity, 0)
-    };
+    return await getCartDetails(user);
   } else {
     throw new AppError('Product not in cart', 404);
   }
